@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+/*
+ * 三层设计令牌:可变性只从 :root 进入,语义层只做映射,组件只消费工具类。
+ * 深浅色靠 light-dark() + 根容器的 scheme-light-dark;换肤只需覆盖 :root。
+ */
+
+/* —— 第一层:原始层(唯一允许出现具体值的地方) —— */
+:root {
+  /* 颜色:色相只用内置 var(--color-*),透明用 --alpha(),深浅不同用 light-dark(),不写字面色值 */
+
+  /* background: 页面 / 面板底 */
+  --background: light-dark(var(--color-white), var(--color-zinc-900));
+  /* foreground: 高对比主文字 */
+  --foreground: light-dark(var(--color-zinc-800), var(--color-zinc-100));
+  /* muted: 静态次级底(卡片、徽章等非交互底) */
+  --muted: light-dark(--alpha(var(--color-zinc-100) / 90%), --alpha(var(--color-zinc-800) / 75%));
+  /* muted-foreground: 低对比文字(提示、占位、说明) */
+  --muted-foreground: light-dark(var(--color-zinc-500), var(--color-zinc-400));
+  /* accent: 交互态底(hover / 选中 / 按钮) */
+  --accent: light-dark(--alpha(var(--color-zinc-900) / 6%), --alpha(var(--color-white) / 10%));
+  /* accent-foreground: 坐在 accent 底上的文字,与 bg-accent 成对出现 */
+  --accent-foreground: light-dark(var(--color-zinc-900), var(--color-zinc-50));
+  /* border: 分隔线、控件描边 */
+  --border: light-dark(--alpha(var(--color-zinc-200) / 80%), --alpha(var(--color-zinc-700) / 60%));
+  /* ring: 焦点环 */
+  --ring: light-dark(var(--color-zinc-400), var(--color-zinc-500));
+
+  /* 非颜色原始值:圆角基准、根字号、字体族 */
+
+  /* 圆角单一基准;语义层按档位 calc 派生,组件类名不变 */
+  --radius: 0.5rem;
+  /* 根字号入口;改此值后间距 / 字号 / rem 尺寸等比缩放,圆角偏移仍是 px */
+  --font-size-base: 100%;
+  /* 系统 UI 字体栈;语义层映射为 --font-sans */
+  --font-family-sans:
+    system-ui, -apple-system, "Segoe UI", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  /* 等宽字体栈;语义层映射为 --font-mono */
+  --font-family-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+
+/* —— 第二层:语义层(只做映射与派生,零具体颜色值) —— */
+/* 用 inline 让工具类直接输出 var(--background),任意子树覆盖原始变量都能生效 */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+
+  /* 圆角派生:sm/md/lg/xl/2xl = 基准 -4/-2/0/+4/+8px,对应 4/6/8/12/16px */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+}
+
+/* —— 第三层:基础层(全局行为策略,不写配色) —— */
+@layer base {
+  html {
+    font-size: var(--font-size-base);
+  }
+
+  /* 不在 body 设 background / color:配色与 color-scheme 由根容器(App.vue 的 main)承担,
+   * body 无 color-scheme 时 light-dark() 只会走浅色支 */
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  /* 写 border 不必再带颜色 */
+  * {
+    border-color: var(--color-border);
+  }
+}
