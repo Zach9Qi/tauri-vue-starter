@@ -29,7 +29,7 @@
 
 ## 质量检查
 
-- [ ] `bun run format && bun run lint && bun run test && bun run build` 全部通过(注意:仓库现在零测试文件,`test` 当前会失败,见 `quality-guidelines.md`)。
+- [ ] `bun run format && bun run format:check && bun run lint && bun run test && bun run build` 全部通过。
 - [ ] `.vue` / composable / store 中没有 `import { invoke }` / `import { listen }`(事件 composable 除外)。
 - [ ] 每个 `invoke<T>()` 有泛型;每个 `api.ts` 函数有非 Tauri 分支。
 - [ ] 没有 `any`、`!` 非空断言、TS `enum`、`console.log`。

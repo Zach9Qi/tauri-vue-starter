@@ -34,7 +34,7 @@
   - 结构化日志集成（`tauri-plugin-log` + `log` 门面宏），Debug 细粒度追踪，Release 静默安全。
 - 🧩 **按需零运行时图标**：集成 `unplugin-icons` 与 Lucide 图标集，编译期按需提取并内联为纯 SVG 组件，零网络开销、尺寸随 `size-*` 缩放、颜色随 `currentColor` 自适应。
 - 🛡️ **严格的多层代码质量门禁**：
-  - 前端：Oxlint（毫秒级极速静态分析）+ Prettier（含 Tailwind 类名自动排序插件）+ `vue-tsc -b` 全量类型检查 + Vitest 单元测试；
+  - 前端：Prettier 格式检查（`--check` 已进 CI，含 Tailwind 类名自动排序插件）+ Oxlint（毫秒级极速静态分析）+ `vue-tsc -b` 全量类型检查 + Vitest 单元测试；
   - 后端：`cargo fmt` + `cargo clippy --all-targets -- -D warnings`（零警告容忍）+ `cargo test`。
 - 🚀 **一条命令自动化发版 (`scripts/release.ts`)**：内置发版助手，自动执行工作区洁净度检查、分支一致性校验、tag 防重、三处版本号同步（`package.json` / `Cargo.toml` / `tauri.conf.json5`）并自动刷新 `Cargo.lock`。
 - 🤖 **工业级 GitHub Actions 流水线**：
@@ -217,6 +217,7 @@ git commit -m "chore: initialize project from tauri-vue-starter template"
 | `bun run tauri dev` | 启动桌面端完整调试 | 联调原生能力、窗口、IPC、插件 |
 | `bun run build` | 全量类型检查 + 前端产物打包 | 本地构建测试或 CI 门禁检查 |
 | `bun run format` | 执行 Prettier 格式化 | 格式化 TS/Vue/CSS，自动对齐 Tailwind 类名 |
+| `bun run format:check` | 仅检查 Prettier 格式不改文件 | 与 CI 门禁一致，提交前确认无格式漂移 |
 | `bun run lint` | 运行 Oxlint 静态诊断 | 秒级检测代码潜藏隐患与模块循环引用 |
 | `bun run test` | 执行 Vitest 单元测试 | 验证前端纯逻辑与工具函数 |
 | `bun run version:check` | 检查三处版本号一致性 | 检查 `package.json`、`Cargo.toml`、`tauri.conf.json5` |

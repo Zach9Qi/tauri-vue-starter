@@ -32,8 +32,11 @@ jobs:
       - name: 校验 tag 与三处版本号一致
         run: bun run version:check "$GITHUB_REF_NAME"
 
-      # lint / test 在这里跑一次即可,不必每个平台重复;前端 build 由 tauri-action 的 beforeBuildCommand 触发;
+      # format / lint / test 在这里跑一次即可,不必每个平台重复;前端 build 由 tauri-action 的 beforeBuildCommand 触发;
       # Rust 侧 fmt / clippy 由 ci.yml 在 main 上保障,发布阶段不重复以节省时间
+      - name: 格式检查(Prettier)
+        run: bun run format:check
+
       - name: Lint(oxlint)
         run: bun run lint
 

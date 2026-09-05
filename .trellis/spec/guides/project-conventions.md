@@ -34,11 +34,12 @@
 
 ## 4. 质量门禁(必须通过才算完成)
 
-与 `.github/workflows/ci.yml` 对应(CI 跑 lint / test / build 与 Rust 三条;`format` 是本地额外步骤,CI 目前不检查格式),本地提交前跑全套:
+与 `.github/workflows/ci.yml` 对应(CI 跑 format:check / lint / test / build 与 Rust 三条;`format` 是本地写入步骤,CI 用 `format:check` 只检查不改文件),本地提交前跑全套:
 
 ```bash
 # 前端
-bun run format          # Prettier --write(含 Tailwind 类名排序);仅本地
+bun run format          # Prettier --write(含 Tailwind 类名排序);本地写入
+bun run format:check    # Prettier --check,与 CI 一致,格式漂移即失败
 bun run lint            # oxlint(含 import/no-cycle)
 bun run test            # Vitest
 bun run build           # vue-tsc -b 全量类型检查 + vite build
@@ -63,6 +64,4 @@ cargo test
 以下做法业界常见,本仓库暂未接入;需要时另开任务,不要在业务任务里顺手加:
 
 - husky + lint-staged + commitlint(lint-staged 可一并跑 `cargo fmt` + `clippy`)。
-- CI 加 `prettier --check src/ scripts/`,当前格式漂移不会让门禁失败。
-- 仓库现在没有任何 `*.test.ts`,`bun run test` 退出码 1,CI 的前端 test 步骤当前是红的;需要补首个测试(建议 `src/lib/runtime.test.ts`)。
 - Rust 侧 `[profile.release]` 体积优化(`lto` / `codegen-units = 1` / `strip` / `panic = "abort"`)。
