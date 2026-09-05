@@ -1,0 +1,60 @@
+# 前端质量规范
+
+> 提交前必须通过的门禁与代码卫生规则。`lint / test / build` 三条与 `.github/workflows/ci.yml` 的 `frontend` job 一致;`format` 是本地额外步骤(CI 不检查格式,见末节「待讨论」)。
+
+---
+
+## 1. 门禁命令
+
+```bash
+bun run format   # Prettier --write src/ scripts/(printWidth 100、LF、Tailwind 类名排序);.prettierignore 额外排除 tauri.conf.json5 防编辑器保存时误格式化
+bun run lint     # oxlint:plugins typescript/unicorn/oxc/import/vue;correctness 全为 error;import/no-cycle = error
+bun run test     # Vitest,include src/**/*.test.ts
+bun run build    # vue-tsc -b(全量类型检查)+ vite build
+```
+
+四条全绿才算完成。oxlint 极快(毫秒级),不要为了省时间跳过。
+
+## 2. 测试
+
+- 测试文件与被测源码**同目录**,命名 `<name>.test.ts`(`vitest.config.ts` 注释与 `include` 规则)。
+- `vitest.config.ts` 独立于 `vite.config.ts`,没有 Vue 插件与 DOM 环境:当前只收集 `src/**/*.test.ts`,测的是**纯函数**(`src/lib/`)。`scripts/` 不在 include 内。要测组件需另开任务引入 `@vue/test-utils` + `happy-dom`,不要在业务任务里顺手加。
+- **现状**:仓库目前没有任何 `*.test.ts`,Vitest 在零测试文件时以退出码 1 结束,`bun run test` 与 CI 的 test 步骤当前是红的。首个修复应是给 `src/lib/runtime.ts` 补 `runtime.test.ts`,而不是开 `passWithNoTests`。
+- 测试名用中文描述行为:`it("空名字返回降级文案", …)`。
+- 每个 `lib/` 里的工具函数都应有测试;写测试时问一句「删掉被测功能,这个测试还过吗?」过的话就是同义反复测试。
+- 本仓库把 `test` 放进 CI 正是为了保证前端单测不缺席,不要让 `src/**/*.test.ts` 长期为零。
+
+## 3. 注释与可读性
+
+- 注释中文,写「为什么」:每个 `ref` 一行 `/** */`(代表什么、何时变、与谁互斥);每个非显然的配置项一行说明(参考 `vite.config.ts`、`HelloWorld.vue`)。
+- 函数级 JSDoc 说明降级行为与失败方式(`src/lib/api.ts`)。
+- 不写复述代码的注释(`// 设置 loading 为 true`)。
+- 经验参考值(非硬标准):文件超过约 200 行或组件同时管理 ≥5 个互相关联的 `ref`,考虑拆 composable / 子组件。
+
+## 4. 日志
+
+- 只允许 `console.error` / `console.warn`,且带中文前缀:`console.error("问候失败:", error)`。
+- 不留 `console.log` 调试语句(本仓库未加 lint 规则强制,靠评审,但要求相同)。
+
+## 5. 可访问性
+
+- 装饰图标 `aria-hidden="true"`;可点击元素用 `<button>` 而不是 `<div @click>`。
+- 表单控件有 `placeholder` 或 `<label>`;仅图标按钮要有 `aria-label`。
+- 焦点可见:统一用 `focus-visible:ring-2 focus-visible:ring-ring`,不 `outline-none` 后不补焦点样式。
+
+## 6. 依赖
+
+- 新增依赖前先看现有栈能否解决;新依赖要在 PR 描述里写用途。
+- 图标集、构建工具放 `devDependencies`;只有运行时需要的进 `dependencies`(当前仅 `@tauri-apps/api`、`vue`、`tailwindcss`)。
+- 锁文件只有 `bun.lock`;不要生成 `package-lock.json` / `pnpm-lock.yaml`。
+
+## 7. 待讨论
+
+- CI 不跑 `prettier --check`,格式漂移不会让门禁失败;要么在 `ci.yml` 加一步 `prettier --check src/ scripts/`,要么接入 lint-staged(见 `../guides/project-conventions.md`)。
+
+## 8. 禁止
+
+- `console.log`、`debugger`。
+- `eslint-disable` / `oxlint-disable` 无原因注释。
+- 跳过任一门禁提交。
+- 在 `.oxlintrc.json` `ignorePatterns` 里加产品代码目录。
