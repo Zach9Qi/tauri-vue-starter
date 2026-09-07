@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* 只扫描 src/ 提取 class,避免 README、.trellis 等无关文件改动触发 CSS HMR */
+@import "tailwindcss" source("../src");
 
 /*
  * 三层设计令牌:可变性只从 :root 进入,语义层只做映射,组件只消费工具类。
