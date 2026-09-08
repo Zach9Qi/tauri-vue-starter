@@ -3,7 +3,7 @@
 
 /*
  * 三层设计令牌:可变性只从 :root 进入,语义层只做映射,组件只消费工具类。
- * 深浅色靠 light-dark() + 根容器的 scheme-light-dark;换肤只需覆盖 :root。
+ * 深浅色靠 light-dark() + html 上的 color-scheme(见基础层);换肤只需覆盖 :root。
  */
 
 /* —— 第一层:原始层(唯一允许出现具体值的地方) —— */
@@ -68,11 +68,21 @@
 @layer base {
   html {
     font-size: var(--font-size-base);
+    /* color-scheme 必须与 :root 里的 light-dark() 令牌声明在同一元素上:
+     * 1. light-dark() 只在带 color-scheme 的元素(及其子树)上才会按深浅色取值,放在 html 上可覆盖
+     *    Teleport 到 body 的弹层等所有节点;
+     * 2. 构建时 Lightning CSS 会把 light-dark() polyfill 成依赖 --lightningcss-light/dark 开关变量的
+     *    var() 表达式,而自定义属性里的 var() 在声明它的元素(:root)上求值后才被继承;开关若挂在
+     *    更深的容器上,:root 拿不到它们,所有颜色令牌都会算成非法值。 */
+    color-scheme: light dark;
   }
 
-  /* 不在 body 设 background / color:配色与 color-scheme 由根容器(App.vue 的 main)承担,
-   * body 无 color-scheme 时 light-dark() 只会走浅色支 */
+  /* 文档级底色 / 文字色 / 字体族挂在 body,只消费语义令牌不写具体值:
+   * 这样 overscroll 回弹、内容短于视口、Teleport 到 body 的弹层等脱离布局容器的区域也不会露出 webview 白底 */
   body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 

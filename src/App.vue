@@ -3,10 +3,8 @@ import HelloWorld from "@/components/HelloWorld.vue";
 </script>
 
 <template>
-  <!-- 根容器承担配色与 color-scheme:light-dark() 需要祖先带 scheme-* 才会按系统深浅色切换 -->
-  <main
-    class="flex min-h-screen items-center justify-center bg-background p-6 font-sans text-foreground scheme-light-dark"
-  >
+  <!-- 根容器只管布局;color-scheme / 底色 / 文字色 / 字体族已在 index.css 基础层挂到 html、body 上,这里不要再加 scheme-* 或 bg-*/text-* -->
+  <main class="flex min-h-screen items-center justify-center p-6">
     <HelloWorld />
   </main>
 </template>

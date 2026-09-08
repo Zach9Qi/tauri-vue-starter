@@ -46,7 +46,7 @@ const emit = defineEmits<{
 - 表单提交用 `<form @submit.prevent="submit">` + `type="submit"` 按钮,让回车天然可用。
 - 装饰性图标一律 `aria-hidden="true"`,按钮语义由文字承担。
 - 互斥的两个提示用 `v-if` / `v-else-if`,不写两个独立 `v-if`。
-- 模板里的注释用 `<!-- 中文 -->`,解释「为什么这样写」(例如 `App.vue` 里解释 `scheme-light-dark` 为何要放在根容器)。
+- 模板里的注释用 `<!-- 中文 -->`,解释「为什么这样写」(例如 `App.vue` 里解释根容器为何只管布局、不写配色类)。
 - 模板里不写复杂表达式,逻辑提到 `computed`(Vue 官方风格指南「简单的模板表达式」;`HelloWorld.vue` 的 `canSubmit` 即此做法)。
 
 ## 5. 图标

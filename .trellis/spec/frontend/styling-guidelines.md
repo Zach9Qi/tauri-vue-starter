@@ -10,7 +10,7 @@
 |---|---|---|---|
 | 原始层 | `:root` | 唯一允许写具体值的地方:颜色用 `light-dark(var(--color-zinc-*), …)`、透明用 `--alpha(… / n%)`、圆角基准 `--radius`、根字号、字体栈 | 字面色值(`#fff`、`rgb()`) |
 | 语义层 | `@theme inline` | 只做映射与派生:`--color-background: var(--background)`、`--radius-sm: calc(var(--radius) - 4px)` | 任何具体值 |
-| 基础层 | `@layer base` | 全局行为策略:根字号、字体平滑、`button { cursor: pointer }`、默认 `border-color` | 配色(配色由 `App.vue` 根容器承担) |
+| 基础层 | `@layer base` | 全局行为策略:根字号、`html { color-scheme: light dark }`、`body` 消费语义令牌设文档底色 / 文字色 / 字体族(`var(--color-background)` 等)、字体平滑、`button { cursor: pointer }`、默认 `border-color` | 具体色值、原始色变量(`var(--color-zinc-*)`) |
 | 消费层 | `.vue` 组件 | 语义工具类:`bg-background`、`text-muted-foreground`、`bg-accent text-accent-foreground`、`border`、`focus-visible:ring-ring` | 原始色工具类 `bg-zinc-900`、任意值 `bg-[#123]` |
 
 现有语义令牌:`background` / `foreground` / `muted` / `muted-foreground` / `accent` / `accent-foreground` / `border` / `ring`;圆角 `radius-sm|md|lg|xl|2xl`;字体 `font-sans` / `font-mono`。
@@ -19,8 +19,10 @@
 
 ## 2. 深浅色
 
-- 靠 `light-dark()` + 根容器 `scheme-light-dark`(`App.vue` 的 `<main>`),跟随系统,无 JS、无 `dark:` 变体。
-- `body` 上**不**设 `background` / `color` / `color-scheme`,原因见 `index.css` 注释:没有 `color-scheme` 的祖先时 `light-dark()` 只会走浅色分支。
+- 靠 `light-dark()` + `@layer base` 里的 `html { color-scheme: light dark }`,跟随系统,无 JS、无 `dark:` 变体。
+- `color-scheme` **必须和 `:root` 上的 `light-dark()` 令牌声明在同一元素(html)上**,不要在组件里用 `scheme-*` 工具类充当主题根。原因见 `index.css` 注释:一是 Teleport 到 body 的弹层会脱离组件子树;二是构建时 Lightning CSS 会 polyfill `light-dark()`,开关变量不在 `:root` 上时所有颜色令牌都会算成非法值。
+- 文档级底色 / 文字色 / 字体族由 `@layer base` 的 `body` 承担(`var(--color-background)` / `var(--color-foreground)` / `var(--font-sans)`),这样 overscroll、Teleport 弹层等脱离布局容器的区域不会露出 webview 白底。布局组件(`App.vue` 的 `<main>`)不再写 `bg-background text-foreground font-sans`;需要局部换底时才在容器上用 `bg-muted` 等令牌。
+- 需要手动切换主题时,在 `html` 上覆盖 `color-scheme`(如加 `scheme-dark` 类),仍不写 `dark:`。
 - 不使用 `dark:` 前缀写双份样式;要新颜色就加令牌。
 
 ## 3. 组件内写法
@@ -33,7 +35,7 @@
 
 ## 4. 字体与图标
 
-- 字体族只在 `:root` 定义一次(`--font-family-sans` / `--font-family-mono`),组件用 `font-sans` / `font-mono`。
+- 字体族只在 `:root` 定义一次(`--font-family-sans` / `--font-family-mono`);`body` 默认 `font-sans`,组件只在需要等宽时写 `font-mono`。
 - 图标是 SVG 组件(`~icons/lucide/*`),尺寸 `size-4` 等,颜色随 `currentColor`;不设 `fill` / `stroke`。
 
 ## 5. 禁止
