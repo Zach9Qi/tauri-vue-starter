@@ -60,6 +60,7 @@ const emit = defineEmits<{
 - 优先 Tailwind 工具类 + 语义令牌(`bg-background`、`text-muted-foreground`),详见 `styling-guidelines.md`。
 - 类名顺序由 `prettier-plugin-tailwindcss` 自动排序,不手动整理。
 - 只有工具类无法表达时才写 `<style scoped>`;禁止全局 `<style>`(全局样式只在 `src/index.css`)。
+- 有 `variant` / `size` props 的组件(按钮、徽章等),类名映射按 `styling-guidelines.md` 「组件变体写法」用 `as const` 对象,不引入 `clsx` / `cva`。
 
 ## 7. 禁止
 

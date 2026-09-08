@@ -15,7 +15,7 @@
 | [state-management.md](./state-management.md) | 状态放哪、Pinia setup store 写法、Rust 作为唯一真相 | 状态要跨组件共享时 |
 | [ipc-guidelines.md](./ipc-guidelines.md) | `api.ts` 封装、参数 / 返回 / 错误契约、浏览器降级、事件与类型镜像 | 任何与 Rust 通信的改动 |
 | [type-safety.md](./type-safety.md) | tsconfig 基线、类型放哪、IPC 边界类型映射 | 定义或修改类型 |
-| [styling-guidelines.md](./styling-guidelines.md) | 三层设计令牌、深浅色、组件内工具类写法 | 写样式、加颜色 |
+| [styling-guidelines.md](./styling-guidelines.md) | 三层设计令牌(shadcn v4 命名)、深浅色、交互 / 焦点范式、表面层级、z-index 档位、桌面端约定、组件变体写法 | 写样式、加颜色、写按钮 / 弹层 / 表单控件 |
 | [quality-guidelines.md](./quality-guidelines.md) | 门禁命令、测试、注释、日志、可访问性、依赖 | 提交前 |
 
 ## 开发前检查清单
@@ -34,6 +34,9 @@
 - [ ] 每个 `invoke<T>()` 有泛型;每个 `api.ts` 函数有非 Tauri 分支。
 - [ ] 没有 `any`、`!` 非空断言、TS `enum`、`console.log`。
 - [ ] 组件内没有字面色值、`bg-zinc-*`、`dark:` 变体。
+- [ ] 主按钮用 `bg-primary text-primary-foreground`,不用 `accent`(`accent` 只做 hover / 选中叠加底)。
+- [ ] 实底按钮 hover 用 `hover:bg-primary/90` 等实底变色,不用 `hover:opacity-*`。
+- [ ] 没有裸 `z-*` 数字或 `z-[...]` 任意值,层级一律 `z-(--z-*)`。
 - [ ] `listen` / 定时器都有 `onUnmounted` 清理。
 - [ ] 新增的 `lib/` 纯函数有同目录 `*.test.ts`。
 - [ ] 新的 `ref` / 配置项都有一行中文注释说明「为什么」。
@@ -43,6 +46,7 @@
 | 决策 | 选择 | 理由 |
 |------|------|------|
 | 样式方案 | Tailwind CSS 4 三层令牌 | 本仓库已实现完整令牌体系;CSS-first 配置与 `light-dark()` 原生深浅色,不换 |
+| 令牌词汇表 | 对齐 shadcn/ui v4 命名(`primary` / `card` / `popover` / `destructive` / `input` …),机制保留 `light-dark()` | Tailwind 生态事实标准,未来接 shadcn-vue / Reka UI 零成本;不照搬 `.dark` 类,不引入 cva / tailwind-variants |
 | 组合式函数目录 | `composables/` | Vue 官方术语 |
 | props 默认值 | 解构默认值,不用 `withDefaults` | Vue 3.5 官方推荐 |
 | SFC 块顺序 | script → template → style | 业界无统一做法,按本仓库现有文件统一 |

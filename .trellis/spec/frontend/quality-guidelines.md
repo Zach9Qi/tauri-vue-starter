@@ -40,7 +40,9 @@ bun run build         # vue-tsc -b(全量类型检查)+ vite build
 
 - 装饰图标 `aria-hidden="true"`;可点击元素用 `<button>` 而不是 `<div @click>`。
 - 表单控件有 `placeholder` 或 `<label>`;仅图标按钮要有 `aria-label`。
-- 焦点可见:统一用 `focus-visible:ring-2 focus-visible:ring-ring`,不 `outline-none` 后不补焦点样式。
+- 焦点可见:统一用 `outline-hidden focus-visible:ring-3 focus-visible:ring-ring/50`(表单控件再加 `focus-visible:border-ring`),`outline-hidden` 后必须补焦点样式(用 `outline-hidden` 不用 `outline-none`,高对比模式下才不丢焦点);`index.css` 基础层的 `outline-color` 只是兜底,不是免写 ring 的理由。
+- reduced-motion 由 `index.css` 基础层 `@media (prefers-reduced-motion: reduce)` 全局保证,组件不写 `motion-reduce:` 变体;动效只用 `transition-colors` / `animate-spin` 等默认工具类。
+- 文字与底色对比度满足 WCAG AA(4.5:1):正文用 `text-foreground` / `text-card-foreground`,错误用 `text-destructive`;`text-muted-foreground` 只用于辅助说明,不承载关键信息。
 
 ## 6. 依赖
 
